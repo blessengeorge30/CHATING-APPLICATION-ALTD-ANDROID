@@ -1,40 +1,76 @@
-import React, { useEffect, useState } from "react";
-import { View, ImageBackground, ScrollView, FlatList, StyleSheet, Image, TouchableOpacity, Animated } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { 
+  View, ImageBackground, Animated, Image, TouchableOpacity, Text, StyleSheet, Alert 
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import FloatingButton from "../components/FloatingButton";
+import SwipeableFlatList from "rn-gesture-swipeable-flatlist";
 import CreateNewGroup from "../components/CreateNewGroup";
 import GroupItem from "../components/GroupItem";
+import ExitConfirmationPopup from "../components/ExitConfirmationPopup";
 import { GROUP_DATA } from "../components/DummyData/GroupData";
 
 const Homescreen = () => {
   const navigation = useNavigation();
+  const flatListRef = useRef(null);
 
   // Animations
-  const [headerAnimation] = useState(new Animated.Value(0)); // Opacity for header
-  const [listAnimation] = useState(new Animated.Value(0)); // Opacity for list items
+  const [headerAnimation] = useState(new Animated.Value(0)); 
+  const [listAnimation] = useState(new Animated.Value(0));
 
-  const handlePress = () => {
-    console.log("Floating Button Pressed!");
-  };
-
-  const renderGroupItem = ({ item }) => <GroupItem item={item} />;
+  // Exit Confirmation Modal State
+  const [isExitPopupVisible, setExitPopupVisible] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
 
   useEffect(() => {
-    // Animate header opacity
     Animated.timing(headerAnimation, {
       toValue: 1,
       duration: 500,
       useNativeDriver: true,
     }).start();
 
-    // Animate group list fade-in
     Animated.timing(listAnimation, {
       toValue: 1,
       duration: 1000,
-      delay: 200, // Add delay to group list fade-in
+      delay: 200,
       useNativeDriver: true,
     }).start();
   }, []);
+
+  // Handle Edit with Alert Confirmation
+  const handleEdit = (item) => {
+    Alert.alert(
+      "Edit Group",
+      `Are you sure you want to edit \"${item.name}\"?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "OK", onPress: () => navigation.navigate("EditGroupScreen", { group: item }) }
+      ]
+    );
+  };
+
+  // Handle Delete (Show Confirmation Popup)
+  const handleDeletePress = (id) => {
+    setSelectedGroupId(id);
+    setExitPopupVisible(true);
+  };
+
+  // Confirm Delete (Remove Item)
+  const handleConfirmDelete = () => {
+    console.log("Deleting Group ID: ", selectedGroupId);
+    setExitPopupVisible(false);
+  };
+
+  // Swipe Right Actions (Edit & Delete)
+  const renderRightActions = (item) => (
+    <View style={styles.rightActionsContainer}>
+      <TouchableOpacity style={styles.editAction} onPress={() => handleEdit(item)}>
+        <Text style={styles.actionText}>Edit</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.deleteAction} onPress={() => handleDeletePress(item.id)}>
+        <Text style={styles.actionText}>Delete</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -43,44 +79,18 @@ const Homescreen = () => {
         style={styles.backgroundImage}
       >
         <View contentContainerStyle={styles.scrollContent}>
-          {/* Header Animation */}
-          <Animated.View
-            style={[
-              styles.headerContainer,
-              { opacity: headerAnimation },
-            ]}
-          >
+          {/* Header */}
+          <Animated.View style={[styles.headerContainer, { opacity: headerAnimation }]}>
             <View style={styles.logoContainer}>
-              <Image
-                source={require("../assets/HeaderIcons/logo.png")}
-                style={styles.logo}
-              />
-              <Image
-                style={styles.giftBoxImage}
-                source={require("../assets/HeaderIcons/GiftBox.png")}
-                resizeMode="contain"
-              />
+              <Image source={require("../assets/HeaderIcons/logo.png")} style={styles.logo} />
+              <Image style={styles.giftBoxImage} source={require("../assets/HeaderIcons/GiftBox.png")} resizeMode="contain" />
             </View>
             <View style={styles.headerIcons}>
-              <TouchableOpacity
-                style={styles.profileButton}
-                onPress={() => navigation.navigate("Profile")}
-              >
-                <Image
-                  source={require("../assets/HeaderIcons/test.png")}
-                  style={styles.profileImage}
-                  resizeMode="cover"
-                />
+              <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate("Profile")}>
+                <Image source={require("../assets/HeaderIcons/test.png")} style={styles.profileImage} resizeMode="cover" />
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.menuButton}
-                onPress={() => navigation.navigate("MainMenuScreen")}
-              >
-                <Image
-                  source={require("../assets/HomeScreenIcons/Menu.png")}
-                  style={styles.menuImage}
-                  resizeMode="contain"
-                />
+              <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate("MainMenuScreen")}>
+                <Image source={require("../assets/HomeScreenIcons/Menu.png")} style={styles.menuImage} resizeMode="contain" />
               </TouchableOpacity>
             </View>
           </Animated.View>
@@ -88,63 +98,46 @@ const Homescreen = () => {
           <View style={styles.welcomeContainer}>
             <CreateNewGroup />
 
-            {/* Group List Fade-in Animation */}
-            <Animated.FlatList
-              data={GROUP_DATA}
-              keyExtractor={(item) => item.id}
-              renderItem={renderGroupItem}
-              style={[styles.groupList, { opacity: listAnimation }]}
-            />
+            {/* Swipeable Group List */}
+            <Animated.View style={{ opacity: listAnimation }}>
+              <SwipeableFlatList
+                ref={flatListRef}
+                data={GROUP_DATA}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => <GroupItem item={item} />}
+                renderRightActions={renderRightActions} // Only Right Swipe
+                enableOpenMultipleRows={false} 
+              />
+            </Animated.View>
           </View>
-
-          {/* <FloatingButton
-            onPress={() => navigation.navigate("NewGroup")}
-            imageSource={require("../assets/HomeScreenIcons/AddButton.png")}
-            size={100}
-          /> */}
         </View>
       </ImageBackground>
+
+      {/* Exit Confirmation Popup */}
+      <ExitConfirmationPopup 
+        visible={isExitPopupVisible}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setExitPopupVisible(false)}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  backgroundImage: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: "space-between",
-  },
+  container: { flex: 1 },
+  backgroundImage: { flex: 1, width: "100%", height: "100%" },
+  scrollContent: { flexGrow: 1, justifyContent: "space-between" },
   headerContainer: {
-    marginTop: 30,
+    marginTop: 35,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
   },
-  logoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  logo: {
-    height: 40,
-    width: 60,
-    marginRight: 10,
-  },
-  giftBoxImage: {
-    width: 130,
-    height: 30,
-  },
-  headerIcons: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
+  logoContainer: { flexDirection: "row", alignItems: "center" },
+  logo: { height: 40, width: 60, marginRight: 10 },
+  giftBoxImage: { width: 130, height: 30 },
+  headerIcons: { flexDirection: "row", alignItems: "center" },
   profileButton: {
     width: 50,
     height: 50,
@@ -155,26 +148,9 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginRight: 15,
   },
-  profileImage: {
-    width: "90%",
-    height: "90%",
-    borderRadius: 25,
-  },
-  menuButton: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  menuImage: {
-    width: 20,
-    height: 20,
-    marginHorizontal: 2,
-  },
-  newuserbutton: {
-    width: 58,
-    height: 58,
-    marginHorizontal: 15,
-    marginLeft: 10,
-  },
+  profileImage: { width: "90%", height: "90%", borderRadius: 25 },
+  menuButton: { justifyContent: "center", alignItems: "center" },
+  menuImage: { width: 20, height: 20, marginHorizontal: 2 },
   welcomeContainer: {
     position: "absolute",
     top: 110,
@@ -191,42 +167,32 @@ const styles = StyleSheet.create({
     shadowRadius: 5.95,
     paddingHorizontal: 10,
   },
-  groupList: {
-    marginVertical: 15,
-  },
-  groupItem: {
+  rightActionsContainer: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 15,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
+    justifyContent: "flex-end",
+    width: 160,
+    marginVertical: 10,
   },
-  groupAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 20,
-  },
-  groupDetails: {
-    flex: 1,
-  },
-  groupName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  groupInfo: {
-    fontSize: 14,
-    color: "#888",
-  },
-  groupTimeContainer: {
+  editAction: {
+    backgroundColor: "#4CAF50",
     justifyContent: "center",
-    alignItems: "flex-end",
+    alignItems: "center",
+    width: 80,
+    height: "100%",
+    borderTopLeftRadius: 5,
+    borderBottomLeftRadius: 5,
   },
-  groupTime: {
-    fontSize: 14,
-    color: "#888",
+  deleteAction: {
+    backgroundColor: "#F44336",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+    height: "100%",
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
   },
+  actionText: { color: "white", fontSize: 16, fontWeight: "bold" },
 });
 
 export default Homescreen;

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "564149788532",
+    "project_id": "couponapp-adecb",
+    "storage_bucket": "couponapp-adecb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:564149788532:android:781c42713f5650e96ed621",
+        "android_client_info": {
+          "package_name": "com.testapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC98LsINkDVkyrHJnnu_Ju9y3-oWyyn_mc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:564149788532:android:f09bd6dce1cd74816ed621",
+        "android_client_info": {
+          "package_name": "com.testapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC98LsINkDVkyrHJnnu_Ju9y3-oWyyn_mc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

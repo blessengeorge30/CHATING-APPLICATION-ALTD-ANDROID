@@ -29,8 +29,7 @@ const GroupActions = () => {
                 <View style={[styles.iconContainer, styles.addButton]}>
                     <Image
                         source={require("../assets/All_icons/useradd.png")}
-                        style={styles.buttonIcon}
-                    />
+                        style={styles.buttonIcon} />
                 </View>
                 <Text style={styles.buttonText}>Add</Text>
             </TouchableOpacity>
@@ -79,7 +78,7 @@ const styles = StyleSheet.create({
         height: 64,
         justifyContent: "center",
         alignItems: "center",
-        borderRadius: 32, // Ensures circular background
+        borderRadius: 32, 
     },
     addButton: {
         backgroundColor: "#E8E248",

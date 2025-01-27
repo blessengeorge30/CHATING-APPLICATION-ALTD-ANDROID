@@ -33,7 +33,8 @@ const Stack = createStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }} //Code to add Basic-Animation 
+      <Stack.Navigator 
+      screenOptions={{ headerShown: false }} //Code to add Basic-Animation 
       //  screenOptions={{               
       //   headerShown: false,
       //   cardStyleInterpolator: ({ current, next, layouts }) => {

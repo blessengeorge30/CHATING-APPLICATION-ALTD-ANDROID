@@ -1,18 +1,8 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Alert,
-  KeyboardAvoidingView,
-  Keyboard,
-  Dimensions,
-  TouchableWithoutFeedback,
-  Platform
-} from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, Alert, StyleSheet, Keyboard, Animated, Platform, ScrollView, TouchableWithoutFeedback, Easing, Dimensions } from "react-native";
 import Header from "../components/Header";
 import Buttons from "../components/Buttons";
-import OtpInput from "../components/OtpInput";
+import OtpInput from "../components/OtpInput"; 
 
 const { height } = Dimensions.get("window");
 
@@ -20,16 +10,44 @@ const OtpScreen = ({ navigation, route }) => {
   const { email, phoneNumber } = route.params || {};
   const [otp, setOtp] = useState(["", "", "", ""]);
 
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  // Animated values for header and content (OTP elements)
+  const headerSlideAnim = useRef(new Animated.Value(0)).current; 
+  const contentSlideAnim = useRef(new Animated.Value(0)).current;
 
+  // Keyboard listeners for animation
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", (event) => {
-      const { height: keyboardHeight } = event.endCoordinates;
-      setKeyboardHeight(keyboardHeight);
+    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
+      Animated.parallel([
+        Animated.timing(headerSlideAnim, {
+          toValue: -50, // Slide up header
+          duration: 300,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+        Animated.timing(contentSlideAnim, {
+          toValue: -50, // Slide up content
+          duration: 300,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+      ]).start();
     });
 
     const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => {
-      setKeyboardHeight(0);
+      Animated.parallel([
+        Animated.timing(headerSlideAnim, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+        Animated.timing(contentSlideAnim, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+      ]).start();
     });
 
     return () => {
@@ -50,40 +68,35 @@ const OtpScreen = ({ navigation, route }) => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 20}
-      >
-        {/* Static Header */}
-        <View style={styles.headerContainer}>
-          <Header />
-        </View>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+        <View style={styles.container}>
+          {/* Animated Header */}
+          <Animated.View style={[styles.headerContainer, { transform: [{ translateY: headerSlideAnim }] }]}>
+            <Header />
+          </Animated.View>
 
-        {/* OTP Section */}
-        <View style={[styles.otpSection, { paddingBottom: keyboardHeight }]}>
-          <Text style={styles.title}>Enter OTP</Text>
-          <Text style={styles.subtitle}>
-            You will receive an OTP verification to {phoneNumber || email}.
-          </Text>
-
-          <View style={styles.OtpInputWrapper}>
-            <OtpInput otp={otp} setOtp={setOtp} />
-          </View>
-
-          <Buttons title="SUBMIT OTP" onPress={handleSubmitOtp} />
-
-          <Text style={styles.footerText}>
-            Not a Member?{" "}
-            <Text
-              style={styles.registerText}
-              onPress={() => navigation.navigate("SignUp")}
-            >
-              Register Now
+          {/* Animated Content */}
+          <Animated.View style={[styles.otpSection, { transform: [{ translateY: contentSlideAnim }] }]}>
+            <Text style={styles.title}>Enter OTP</Text>
+            <Text style={styles.subtitle}>
+              You will receive an OTP verification to {phoneNumber || email}.
             </Text>
-          </Text>
+
+            <View style={styles.OtpInputWrapper}>
+              <OtpInput otp={otp} setOtp={setOtp} />
+            </View>
+
+            <Buttons title="SUBMIT OTP" onPress={handleSubmitOtp} customStyle={styles.sendOtpButton} />
+
+            <Text style={styles.footerText}>
+              Not a Member?{" "}
+              <Text style={styles.registerText} onPress={() => navigation.navigate("SignUp")}>
+                Register Now
+              </Text>
+            </Text>
+          </Animated.View>
         </View>
-      </KeyboardAvoidingView>
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 };
@@ -97,14 +110,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#EDE63C",
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40,
-    paddingBottom: 20, 
   },
   otpSection: {
-    marginTop: 40,
-    paddingHorizontal: 20,
+    padding: 20,
+    justifyContent: "center",
+    marginTop: 35,
   },
-  title: { fontSize: 24, fontWeight: "bold", color: "#000", textAlign: "center" },
-  subtitle: { fontSize: 14, color: "#666", textAlign: "center", marginVertical: 20 },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#000",
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 14,
+    color: "#666",
+    marginVertical: 20,
+    textAlign: "center",
+  },
   footerText: {
     marginTop: 30,
     fontSize: 14,
@@ -115,8 +138,15 @@ const styles = StyleSheet.create({
     color: "#FFD700",
     fontWeight: "bold",
   },
-  OtpInputWrapper: { 
-    alignItems: "center", marginTop: 25 
+  OtpInputWrapper: {
+    alignItems: "center",
+    marginTop: 25,
+  },
+  sendOtpButton: {
+    backgroundColor: "#007BFF",
+    marginTop: 15,
+    paddingVertical: 15,
+    borderRadius: 10,
   },
 });
 

@@ -10,57 +10,48 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Animated,
-  Dimensions,
 } from "react-native";
 import TextInputWithIcon from "../components/InputFeild";
 import Button from "../components/Buttons";
 import Header from "../components/Header";
 
-const { height } = Dimensions.get("window");
-
 const PhoneSignInScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneValid, setPhoneValid] = useState(true);
 
+  // Animated values for header and content (login elements)
+  const headerSlideAnim = useRef(new Animated.Value(0)).current; 
+  const contentSlideAnim = useRef(new Animated.Value(0)).current;
 
-  const headerHeight = useRef(new Animated.Value(height * 0.4)).current;
-  const contentHeight = useRef(new Animated.Value(1)).current;
-
-
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-
-  // Adjustments when the keyboard is shown or hidden
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
-      setIsKeyboardVisible(true);
-      // Animate header and content resizing
+      // Slide the header and content up slightly when the keyboard appears
       Animated.parallel([
-        Animated.timing(headerHeight, {
-          toValue: height * 0.3,
+        Animated.timing(headerSlideAnim, {
+          toValue: -50, // Adjust to slide up the header
           duration: 300,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
-        Animated.timing(contentHeight, {
-          toValue: 0.6,
+        Animated.timing(contentSlideAnim, {
+          toValue: -50, // Adjust to slide up the login content
           duration: 300,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
       ]).start();
     });
 
     const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => {
-      setIsKeyboardVisible(false);
-      // Reset header and content to original size
+      // Reset header and content to original position when the keyboard disappears
       Animated.parallel([
-        Animated.timing(headerHeight, {
-          toValue: height * 0.4,
+        Animated.timing(headerSlideAnim, {
+          toValue: 0,
           duration: 300,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
-        Animated.timing(contentHeight, {
-          toValue: 1,
+        Animated.timing(contentSlideAnim, {
+          toValue: 0,
           duration: 300,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
       ]).start();
     });
@@ -92,16 +83,16 @@ const PhoneSignInScreen = ({ navigation }) => {
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 20}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 70 : 15}
       >
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
           {/* Animated Header */}
-          <Animated.View style={[styles.headerContainer, { height: headerHeight }]}>
+          <Animated.View style={[styles.headerContainer, { transform: [{ translateY: headerSlideAnim }] }]}>
             <Header />
           </Animated.View>
 
-          {/* Main Content */}
-          <Animated.View style={[styles.inner, { flex: contentHeight }]}>
+          {/* Main Content (Login elements) */}
+          <Animated.View style={[styles.inner, { transform: [{ translateY: contentSlideAnim }] }]}>
             <Text style={styles.title}>Login</Text>
             <Text style={styles.subtitle}>Enter your phone number for verification.</Text>
             <View style={styles.inputSection}>
@@ -146,6 +137,7 @@ const styles = StyleSheet.create({
   inner: {
     padding: 20,
     justifyContent: "center",
+    marginTop: 35,
   },
   title: {
     fontSize: 24,
@@ -160,16 +152,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   inputSection: {
-    marginTop: 20,
+    marginTop: 15, 
   },
   sendOtpButton: {
     backgroundColor: "#007BFF",
-    marginTop: 20,
+    marginTop: 15, 
     paddingVertical: 15,
     borderRadius: 10,
   },
   footerText: {
-    marginTop: 20,
+    marginTop: 15, 
     fontSize: 14,
     color: "#666",
     textAlign: "center",

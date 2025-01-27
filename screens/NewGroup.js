@@ -69,10 +69,13 @@ const NewGroup = () => {
         {/* Header */}
         <View style={styles.headerContainer}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Image
+       
+          <Image
               source={require("../assets/All_icons/back.png")}
               style={styles.backIcon}
             />
+        
+          
           </TouchableOpacity>
           <View style={styles.groupLogo}>
         
@@ -131,6 +134,7 @@ const styles = StyleSheet.create({
   backIcon: {
     width: 22,
     height: 18,
+    
   },
   groupLogo: {
     flexDirection: "row",
