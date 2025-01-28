@@ -7,7 +7,8 @@ import SwipeableFlatList from "rn-gesture-swipeable-flatlist";
 import CreateNewGroup from "../components/CreateNewGroup";
 import GroupItem from "../components/GroupItem";
 import ExitConfirmationPopup from "../components/ExitConfirmationPopup";
-import { GROUP_DATA } from "../components/DummyData/GroupData";
+import { firebase } from '@react-native-firebase/app';
+import '@react-native-firebase/firestore';
 
 const Homescreen = () => {
   const navigation = useNavigation();
@@ -20,6 +21,9 @@ const Homescreen = () => {
   // Exit Confirmation Modal State
   const [isExitPopupVisible, setExitPopupVisible] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState(null);
+
+  // State for groups
+  const [groups, setGroups] = useState([]);
 
   useEffect(() => {
     Animated.timing(headerAnimation, {
@@ -34,18 +38,23 @@ const Homescreen = () => {
       delay: 200,
       useNativeDriver: true,
     }).start();
+
+    // Fetch groups from Firestore on component mount
+    const unsubscribe = firebase.firestore().collection('groups').onSnapshot(snapshot => {
+      const fetchedGroups = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setGroups(fetchedGroups);
+    });
+
+    // Clean up listener on unmount
+    return () => unsubscribe();
   }, []);
 
-  // Handle Edit with Alert Confirmation
+ 
   const handleEdit = (item) => {
-    Alert.alert(
-      "Edit Group",
-      `Are you sure you want to edit \"${item.name}\"?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "OK", onPress: () => navigation.navigate("EditGroupScreen", { group: item }) }
-      ]
-    );
+    navigation.navigate("CreateGroupScreen", { group: item });
   };
 
   // Handle Delete (Show Confirmation Popup)
@@ -56,8 +65,12 @@ const Homescreen = () => {
 
   // Confirm Delete (Remove Item)
   const handleConfirmDelete = () => {
-    console.log("Deleting Group ID: ", selectedGroupId);
-    setExitPopupVisible(false);
+    firebase.firestore().collection('groups').doc(selectedGroupId).delete()
+      .then(() => {
+        console.log("Group deleted successfully!");
+        setExitPopupVisible(false);
+      })
+      .catch((error) => console.error("Error deleting group: ", error));
   };
 
   // Swipe Right Actions (Edit & Delete)
@@ -102,7 +115,7 @@ const Homescreen = () => {
             <Animated.View style={{ opacity: listAnimation }}>
               <SwipeableFlatList
                 ref={flatListRef}
-                data={GROUP_DATA}
+                data={groups}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => <GroupItem item={item} />}
                 renderRightActions={renderRightActions} // Only Right Swipe

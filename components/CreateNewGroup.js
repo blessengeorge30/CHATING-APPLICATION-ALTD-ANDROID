@@ -4,7 +4,8 @@ import { useNavigation } from "@react-navigation/native";
 const CreateNewGroup = () => {
     const navigation = useNavigation();
   return (
-    <TouchableOpacity style={{ flexDirection: "row", marginTop: 30 }} onPress={() => navigation.navigate("NewGroup")}>
+    // <TouchableOpacity style={{ flexDirection: "row", marginTop: 30 }} onPress={() => navigation.navigate("NewGroup")}>
+          <TouchableOpacity style={{ flexDirection: "row", marginTop: 30 }} onPress={() => navigation.navigate("CreateGroupScreen")}>
       <Image
         source={require("../assets/HomeScreenIcons/UsersThree.png")}
         style={styles.newuserbutton}

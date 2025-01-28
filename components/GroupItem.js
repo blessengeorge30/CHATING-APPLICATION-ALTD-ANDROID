@@ -13,12 +13,24 @@ const GroupItem = ({ item }) => {
 
   return (
     <TouchableOpacity style={styles.container} onPress={handlePress}>
-      <Image source={item.avatar} style={styles.avatar} />
+      {/* Avatar Image */}
+      {item.image ? (
+        <Image source={{ uri: item.image }} style={styles.avatar} />
+      ) : (
+        <View style={styles.avatarPlaceholder}>
+          <Text style={styles.avatarText}>No Image</Text>
+        </View>
+      )}
+
       <View style={styles.details}>
         <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.members}>{item.members}</Text>
+        <Text style={styles.members}>Members: {item.membersCount}</Text>
       </View>
-      <Text style={styles.time}>{item.time}</Text>
+
+      {/* Display Time Only */}
+      <Text style={styles.time}>
+        {new Date(item.createdAt).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}
+      </Text>
     </TouchableOpacity>
   );
 };
@@ -37,6 +49,19 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     marginRight: 20,
+  },
+  avatarPlaceholder: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 20,
+  },
+  avatarText: {
+    color: "#fff",
+    fontSize: 12,
   },
   details: {
     flex: 1,

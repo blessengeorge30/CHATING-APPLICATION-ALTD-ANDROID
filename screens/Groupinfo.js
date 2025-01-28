@@ -43,11 +43,14 @@ const GroupInfo = () => {
                 >
                     <View style={styles.headerContainer}>
                         <TouchableOpacity onPress={() => navigation.goBack()}>
-                            <Image
+                             <View style={{padding:8}}>
+                                 <Image
                                 source={require("../assets/All_icons/back.png")}
                                 style={styles.backIcon}
                                 resizeMode="contain"
                             />
+                             </View>
+                           
                         </TouchableOpacity>
                         <Text style={styles.headerText}></Text>
                     </View>
@@ -60,7 +63,10 @@ const GroupInfo = () => {
                                     source={require("../assets/HomeScreenIcons/Logos/Amazon.png")}
                                     style={styles.profileImage}
                                 />
-                                <TouchableOpacity style={styles.editIcon}  onPress={() => setIsCameraPopupVisible(true)}>
+                                <TouchableOpacity style={styles.editIcon} 
+                                //  onPress={() => setIsCameraPopupVisible(true)}
+                                 onPress={() => navigation.navigate("EditGroup")}
+                                 >
                                     <View style={styles.editoption}>
                                         <Image
                                             source={require("../assets/All_icons/edit.png")}
@@ -109,7 +115,7 @@ const styles = StyleSheet.create({
     headerContainer: {
         flexDirection: "row",
         alignItems: "center",
-        marginTop: 10,
+        marginTop: 20,
         paddingVertical: height * 0.02,
         paddingHorizontal: width * 0.05,
         marginBottom: 100,
@@ -150,7 +156,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.3,
         shadowRadius: 4,
-        height: 730,
+        height: 700,
     },
     backIcon: {
         height: 20,

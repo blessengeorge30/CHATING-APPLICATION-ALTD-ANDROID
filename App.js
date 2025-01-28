@@ -27,6 +27,9 @@ import AddNewMembers from './screens/AddNewMembers';
 import PendingApprovals from './screens/PendingApprovals';
 import LoginEmail from './screens/LoginEmail';
 import NotificationsScreen from './screens/NotificationsScreen';
+import CreateGroupScreen from './screens/CreateGroupScreen';
+import EditGroup from './screens/EditGroup';
+
 
 const Stack = createStackNavigator();
 
@@ -82,7 +85,9 @@ export default function App() {
         <Stack.Screen name="GroupMembers" component={GroupMembers} />
         <Stack.Screen name="PendingApprovals" component={PendingApprovals} />
         <Stack.Screen name="NotificationsScreen" component={NotificationsScreen} />
+        <Stack.Screen name="CreateGroupScreen" component={CreateGroupScreen} />
         <Stack.Screen name="AddCoupon" component={AddCoupon} options={{ presentation: 'modal' }} />
+        <Stack.Screen name="EditGroup" component={EditGroup} options={{ presentation: 'modal' }} />
 
 
       </Stack.Navigator>
