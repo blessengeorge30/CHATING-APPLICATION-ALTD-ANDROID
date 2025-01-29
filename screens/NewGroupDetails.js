@@ -18,7 +18,7 @@ import CameraPopup from "../components/CamaraPopup";
 const NewGroup = () => {
     const navigation = useNavigation();
     const [isMenuVisible, setIsMenuVisible] = useState(false);
-    const [isCameraPopupVisible, setIsCameraPopupVisible] = useState(false); // State for CameraPopup visibility
+    const [isCameraPopupVisible, setIsCameraPopupVisible] = useState(false); 
     const [selectedMembers, setSelectedMembers] = useState([]);
     const [groupName, setGroupName] = useState("");
 
@@ -65,7 +65,7 @@ const NewGroup = () => {
                     source={
                         isSelected
                             ? require("../assets/All_icons/tick1.png")
-                            : require("../assets/All_icons/tick1.png")
+                            : require("../assets/All_icons/cross1.png")
                     }
                     style={styles.checkboxIcon}
                 />

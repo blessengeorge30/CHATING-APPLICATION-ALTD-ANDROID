@@ -1,15 +1,26 @@
 import React, { useState } from "react";
-import { View, TextInput, Text, TouchableOpacity, Image, StyleSheet, Dimensions, ImageBackground } from "react-native";
+import {
+  View,
+  TextInput,
+  Text,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  Dimensions,
+
+  ImageBackground,
+} from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { firebase } from '@react-native-firebase/app';
-import '@react-native-firebase/firestore';
-import { launchImageLibrary } from 'react-native-image-picker';
-import CameraPopup from "../components/CamaraPopup"; 
+import { firebase } from "@react-native-firebase/app";
+import "@react-native-firebase/firestore";
+import FloatingButton from "../components/FloatingButton";
+import { launchImageLibrary } from "react-native-image-picker";
+import CameraPopup from "../components/CamaraPopup";
 
 const { width, height } = Dimensions.get("window");
 
 const CreateGroupScreen = () => {
-  const navigation = useNavigation();
+    const navigation = useNavigation();
   const route = useRoute();
   const { group } = route.params || {};
 
@@ -20,7 +31,7 @@ const CreateGroupScreen = () => {
   const [isCameraPopupVisible, setIsCameraPopupVisible] = useState(false);
 
   const selectImage = () => {
-    launchImageLibrary({ mediaType: 'photo' }, response => {
+    launchImageLibrary({ mediaType: "photo" }, (response) => {
       if (response.didCancel) {
         console.log("User cancelled image picker");
       } else if (response.errorCode) {
@@ -58,9 +69,9 @@ const CreateGroupScreen = () => {
 
     try {
       if (group) {
-        await firebase.firestore().collection('groups').doc(group.id).update(groupData);
+        await firebase.firestore().collection("groups").doc(group.id).update(groupData);
       } else {
-        await firebase.firestore().collection('groups').add(groupData);
+        await firebase.firestore().collection("groups").add(groupData);
       }
       navigation.goBack();
     } catch (error) {
@@ -87,7 +98,9 @@ const CreateGroupScreen = () => {
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Image source={require("../assets/All_icons/back.png")} style={styles.backIcon} />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>{group ? "Edit Group" : "Create New Group"}</Text>
+            <Text style={styles.headerTitle}>
+              {group ? "Edit Group" : "Create New Group"}
+            </Text>
             <View style={{ width: 40 }} /> {/* Placeholder for spacing */}
           </View>
 
@@ -144,7 +157,9 @@ const CreateGroupScreen = () => {
 
             {/* Create/Update Group Button */}
             <TouchableOpacity style={styles.createButton} onPress={handleSubmit}>
-              <Text style={styles.createButtonText}>{group ? "Update Group" : "Create Group"}</Text>
+              <Text style={styles.createButtonText}>
+                {group ? "Update Group" : "Create Group"}
+              </Text>
             </TouchableOpacity>
 
             {/* Cancel Button */}
@@ -152,6 +167,13 @@ const CreateGroupScreen = () => {
               <Text style={styles.cancelButton}>Cancel</Text>
             </TouchableOpacity>
           </View>
+
+              {/* Floating Button */}
+              <FloatingButton
+                    onPress={() => navigation.navigate("Home")}
+                    imageSource={require("../assets/All_icons/floatingbuttontick.png")}
+                    size={100}
+                />
 
           {/* CameraPopup Component */}
           <CameraPopup
